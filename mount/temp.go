@@ -20,6 +20,7 @@ import (
 	"context"
 	"io/ioutil"
 	"os"
+	"runtime/debug"
 
 	"github.com/containerd/containerd/log"
 	"github.com/pkg/errors"
@@ -60,6 +61,7 @@ func WithTempMount(ctx context.Context, mounts []Mount, f func(root string) erro
 		}
 	}()
 	if uerr = All(mounts, root); uerr != nil {
+		debug.PrintStack()
 		return errors.Wrapf(uerr, "failed to mount %s", root)
 	}
 	return errors.Wrapf(f(root), "mount callback failed on %s", root)

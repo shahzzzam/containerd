@@ -16,6 +16,13 @@
 
 package mount
 
+import (
+	"context"
+	"fmt"
+
+	"github.com/containerd/containerd/log"
+)
+
 // Mount is the lingua franca of containerd. A mount represents a
 // serialized mount syscall. Components either emit or consume mounts.
 type Mount struct {
@@ -29,12 +36,20 @@ type Mount struct {
 	Options []string
 }
 
+func (m *Mount) String() string {
+	return fmt.Sprintf("%s //// %s //// %+v", m.Type, m.Source, m.Options)
+}
+
 // All mounts all the provided mounts to the provided target
 func All(mounts []Mount, target string) error {
 	for _, m := range mounts {
+		log.G(context.TODO()).WithField("mount", m).
+			WithField("target", target).
+			Info("mounting to Temp")
 		if err := m.Mount(target); err != nil {
 			return err
 		}
 	}
+	log.G(context.TODO()).Info("mounting to temp complete")
 	return nil
 }
